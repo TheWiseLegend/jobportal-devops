@@ -3,6 +3,8 @@
 # Run from: infrastructure/docker/
 # Required env var: MONOLITH_PATH — set in .env file next to this compose file
 
+name: jobportal
+
 services:
 
   # ─────────────────────────────────────────────
@@ -31,7 +33,7 @@ services:
   # ─────────────────────────────────────────────
   # Spring Boot monolith
   # ─────────────────────────────────────────────
-  app:
+  jobportal-backend:
     build:
       context: ${MONOLITH_PATH}                        # Absolute path to monolith repo — set in .env
       dockerfile: ${DEVOPS_PATH}/infrastructure/docker/Dockerfile                  # Dockerfile sits next to this compose file
@@ -109,7 +111,7 @@ services:
     volumes:
       - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - app
+      - jobportal-backend
     networks:
       - jobportal-net
 
