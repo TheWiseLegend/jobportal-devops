@@ -17,9 +17,9 @@ WORKDIR /app
 
 RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
 
-COPY --from=builder /app/target/jobportal-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/jobportal-aws-deployment.jar app.jar
 
-RUN chown appuser:appgroup app.jar
+RUN mkdir -p logs && chown -R appuser:appgroup /app
 
 USER appuser
 
