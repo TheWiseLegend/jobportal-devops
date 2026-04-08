@@ -1,0 +1,121 @@
+# infrastructure/docker/docker-compose.yml
+# Orchestrates the full local stack: app, MySQL, Keycloak, Kafka, Zookeeper, Nginx
+# Run from: infrastructure/docker/
+# Required env var: MONOLITH_PATH — set in .env file next to this compose file
+
+services:
+
+  # ─────────────────────────────────────────────
+  # MySQL — primary database
+  # ─────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: jobportal-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jobportal
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../mysql/jobportal-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../mysql/jobportal-data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    networks:
+      - jobportal-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # Spring Boot monolith
+  # ─────────────────────────────────────────────
+  app:
+    build:
+      context: ${MONOLITH_PATH}                        # Absolute path to monolith repo — set in .env
+      dockerfile: ${DEVOPS_PATH}/infrastructure/docker/Dockerfile                  # Dockerfile sits next to this compose file
+    container_name: jobportal-app
+    environment:
+      DATABASE_HOST: mysql
+      DATABASE_PORT: 3306
+      DATABASE_NAME: jobportal
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
+    ports:
+      - "8080:8080"
+      - "9090:9090"   # Spring Actuator (metrics endpoint for Prometheus later)
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - jobportal-net
+
+  # ─────────────────────────────────────────────
+  # Zookeeper — required by Kafka for coordination
+  # ─────────────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: jobportal-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - jobportal-net
+
+  # ─────────────────────────────────────────────
+  # Kafka — message broker
+  # ─────────────────────────────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: jobportal-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - jobportal-net
+
+  # ─────────────────────────────────────────────
+  # Keycloak — identity and access management
+  # ─────────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: jobportal-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8180
+    ports:
+      - "8180:8180"
+    networks:
+      - jobportal-net
+
+  # ─────────────────────────────────────────────
+  # Nginx — reverse proxy in front of the app
+  # ─────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: jobportal-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - jobportal-net
+
+volumes:
+  mysql_data:
+
+networks:
+  jobportal-net:
+    driver: bridge
