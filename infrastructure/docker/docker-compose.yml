@@ -1,4 +1,3 @@
-# infrastructure/docker/docker-compose.yml
 # Orchestrates the full local stack: app, MySQL, Keycloak, Kafka, Zookeeper, Nginx
 # Run from: infrastructure/docker/
 # Required env var: MONOLITH_PATH — set in .env file next to this compose file
