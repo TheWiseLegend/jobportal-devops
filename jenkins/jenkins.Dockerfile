@@ -28,5 +28,8 @@ RUN apt-get update && apt-get install -y \
     docker-ce-cli \
     && rm -rf /var/lib/apt/lists/*
 
+# Create docker group with GID 1001 to match the host, and add jenkins user to it
+RUN groupadd -f -g 1001 docker && usermod -aG docker jenkins
+
 # Switch back to jenkins user — never run Jenkins as root
 USER jenkins

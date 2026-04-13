@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "amrthedev/jobportal"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone backend source into a subdirectory called 'jobportal'
+                dir('jobportal') {
+                    git url: 'https://github.com/TheWiseLegend/jobportal git',
+                        branch: 'main'
+                }
+
+                dir('jobportal-devops') {
+                    git url: 'https://github.com/TheWiseLegend/jobportal-devops.git',
+                        branch: 'main'
+                }
+            }
+        }
+
+        stage('Build Docker Image'){
+            steps {
+                script {
+                    // Dockerfile is in jobportal-devops, but the build context
+                    // (source code Maven needs) is in jobportal/
+                    docker.build(
+                        "${FULL_IMAGE}",
+                        "-f ${WORKSPACE}/jobportal-devops/infrastructure/docker/Dockerfile ${WORKSPACE}/jobportal"
+                    )
+                }
+            }
+        }
+    }
+}
