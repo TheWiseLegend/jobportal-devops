@@ -3,19 +3,21 @@ pipeline {
 
     environment {
         IMAGE_NAME = "amrthedev/jobportal"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
         FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 // Clone backend source into a subdirectory called 'jobportal'
                 dir('jobportal') {
-                    git url: 'https://github.com/TheWiseLegend/jobportal git',
+                    git url: 'https://github.com/TheWiseLegend/jobportal.git',
                         branch: 'main'
                 }
 
+                // Clone devops repo (contains our Dockerfile) into 'jobportal-devops'
                 dir('jobportal-devops') {
                     git url: 'https://github.com/TheWiseLegend/jobportal-devops.git',
                         branch: 'main'
@@ -23,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image'){
+        stage('Build Docker Image') {
             steps {
                 script {
                     // Dockerfile is in jobportal-devops, but the build context
@@ -34,6 +36,30 @@ pipeline {
                     )
                 }
             }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry-1.docker.io/v2/', 'dockerhub-credentials') {
+                        docker.image("${FULL_IMAGE}").push()
+                        // Also tag as latest so docker-compose always pulls the newest
+                        docker.image("${FULL_IMAGE}").push('latest')
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Image ${FULL_IMAGE} built and pushed successfully"
+        }
+        failure {
+            echo "Pipeline failed — check logs above"
+        }
+        always {
+            cleanWs()
         }
     }
 }
