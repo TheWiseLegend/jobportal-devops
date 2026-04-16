@@ -1,3 +1,5 @@
+@Library('jobportal-shared-lib') _
+
 pipeline {
     agent any
 
@@ -27,26 +29,21 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Dockerfile is in jobportal-devops, but the build context
-                    // (source code Maven needs) is in jobportal/
-                    docker.build(
-                        "${FULL_IMAGE}",
-                        "-f ${WORKSPACE}/jobportal-devops/infrastructure/docker/Dockerfile ${WORKSPACE}/jobportal"
-                    )
-                }
+                // Calls vars/buildDockerImage.groovy from jobportal-shared-lib
+                // Args: full image name, path to Dockerfile, path to build context
+                buildDockerImage(
+                    "${FULL_IMAGE}",
+                    "${WORKSPACE}/jobportal-devops/infrastructure/docker/Dockerfile",
+                    "${WORKSPACE}/jobportal"
+                )
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry('https://registry-1.docker.io/v2/', 'dockerhub-credentials') {
-                        docker.image("${FULL_IMAGE}").push()
-                        // Also tag as latest so docker-compose always pulls the newest
-                        docker.image("${FULL_IMAGE}").push('latest')
-                    }
-                }
+                // Calls vars/pushToRegistry.groovy from jobportal-shared-lib
+                // Args: full image name, Jenkins credential ID
+                pushToRegistry("${FULL_IMAGE}", 'dockerhub-credentials')
             }
         }
     }
