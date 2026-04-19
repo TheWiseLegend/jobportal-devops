@@ -34,5 +34,3 @@ RUN groupadd -f -g 1001 docker && usermod -aG docker jenkins
 # Switch back to jenkins user — never run Jenkins as root
 USER jenkins
 
-
-
