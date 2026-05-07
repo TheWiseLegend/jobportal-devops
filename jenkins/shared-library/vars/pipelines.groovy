@@ -7,5 +7,6 @@ def javaApp(Map params = [:]) {
         new pipelines.javaApp.JavaAppMain(this).run(params)
     } else {
         new pipelines.javaApp.JavaAppFeature(this).run(params)
+        
     }
 }
