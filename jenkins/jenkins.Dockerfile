@@ -28,6 +28,13 @@ RUN apt-get update && apt-get install -y \
     docker-ce-cli \
     && rm -rf /var/lib/apt/lists/*
 
+# Step 5: Install Maven
+# Maven on Debian trixie ships with a bundled JDK — sufficient for building
+# and testing the Spring Boot app inside the Jenkins agent.
+RUN apt-get update && apt-get install -y \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create docker group with GID 1001 to match the host, and add jenkins user to it
 RUN groupadd -f -g 1001 docker && usermod -aG docker jenkins
 
