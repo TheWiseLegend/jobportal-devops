@@ -6,10 +6,10 @@
 
 
 def javaApp(Map config = [:]) {
+
     // env.BRANCH_NAME → set automatically by Multibranch Pipeline jobs
     // env.GIT_BRANCH  → set by regular Pipeline jobs, often prefixed with 'origin/'
     // We normalise both into a clean branch name.
-
     def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'
 
     echo "Branch detected: ${branchName}"
