@@ -15,9 +15,9 @@ def javaApp(Map config = [:]) {
     echo "Branch detected: ${branchName}"
 
     if (branchName == 'main') {
-        new pipeline.javaApp.JavaAppMain(this).run(config)
+        new pipelines.javaApp.JavaAppMain(this).run(config)
     } else {
-        new pipeline.javaApp.JavaAppFeature(this).run(config)
+        new pipelines.javaApp.JavaAppFeature(this).run(config)
     }
 
 }
