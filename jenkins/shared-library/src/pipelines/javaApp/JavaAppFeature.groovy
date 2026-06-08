@@ -68,7 +68,7 @@ class JavaAppFeature implements Serializable {
         // Run tests against the feature branch code.
         // -B = batch mode for clean Jenkins logs.
         script.dir('jobportal') {
-            echo "testing..."
+            script.echo "Skipping tests — MySQL not available in CI yet. Revisit in Phase 4."
         }
     }
 

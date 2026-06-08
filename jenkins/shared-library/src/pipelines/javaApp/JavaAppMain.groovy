@@ -56,7 +56,7 @@ class JavaAppMain implements Serializable {
     private void test() {
         // -B = batch mode: no progress bars, cleaner logs in Jenkins.
         script.dir('jobportal') {
-            echo "testing..."
+            script.echo "Skipping tests — MySQL not available in CI yet. Revisit in Phase 4."
         }
     }
 
