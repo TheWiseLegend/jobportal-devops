@@ -27,7 +27,7 @@ class JavaAppMain implements Serializable {
                 script.stage('Test') {
                     test()
                 }
-                script.stage('Build') {
+                script.stage('Build & Package') {
                     buildImage(fullImage)
                 }
                 script.stage('Deploy') {
