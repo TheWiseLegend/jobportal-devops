@@ -14,12 +14,15 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
         }
     }
 
-    // BranchDiscoveryTrait has no native binding in Job DSL's git source.
-    // Without it, Jenkins fetches the repo but never actually scans for branches.
-    // The configure block injects it directly into the underlying Jenkins XML config.
+    // BranchDiscoveryTrait has no native DSL binding.
+    // The << operator with a Closure evaluates in NodeBuilder context —
+    // inside the closure, 'TagName'() creates a child XML element.
+    // This matches the exact XML Jenkins generates when you add
+    // "Discover branches" via the UI (confirmed from config.xml).
     configure {
-        def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
-        traits << 'jenkins.plugins.git.traits.BranchDiscoveryTrait'()
+        it / sources / data / 'jenkins.branch.BranchSource' / source / traits << {
+            'jenkins.plugins.git.traits.BranchDiscoveryTrait'()
+        }
     }
 
     factory {
@@ -34,5 +37,3 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
         }
     }
 }
-
-
