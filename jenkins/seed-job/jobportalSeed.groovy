@@ -34,3 +34,5 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
         }
     }
 }
+
+
