@@ -37,10 +37,4 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
             numToKeep(10)
         }
     }
-
-    // Scan the repo every 5 minutes as a fallback.
-    // GitHub webhook will trigger immediate scans on push once wired up.
-    triggers {
-        periodic(5)
-    }
 }
