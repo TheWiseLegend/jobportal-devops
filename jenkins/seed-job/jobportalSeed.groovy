@@ -18,6 +18,10 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
                     remote('https://github.com/TheWiseLegend/jobportal.git')
                     // Empty = no credentials needed (public repo)
                     credentialsId('')
+
+                    traits {
+                        gitBranchDiscovery()
+                    }
                 }
             }
         }
