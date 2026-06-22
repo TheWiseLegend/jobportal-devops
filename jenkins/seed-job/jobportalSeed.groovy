@@ -36,4 +36,5 @@ multibranchPipelineJob('jobportal-pipeline-multibranch') {
             numToKeep(10)
         }
     }
+    
 }
