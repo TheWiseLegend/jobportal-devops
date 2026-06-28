@@ -1,0 +1,4 @@
+---
+- ansible.builtin.import_playbook: playbooks/provision.yml
+- ansible.builtin.import_playbook: playbooks/configure.yml
+- ansible.builtin.import_playbook: playbooks/deploy.yml

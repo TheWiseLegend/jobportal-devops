@@ -1,0 +1,9 @@
+---
+# Environment tag — drives all Azure resource names
+env: dev
+
+# Azure region — all resources are created here
+az_location: southeastasia
+
+# Resource group — the Azure container that holds every resource in this env
+az_resource_group: "jobportal-{{ env }}-rg"
