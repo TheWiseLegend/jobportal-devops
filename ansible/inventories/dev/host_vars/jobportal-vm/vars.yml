@@ -1,0 +1,24 @@
+---
+# ── SSH Connection ───────────────────────────────────────────────────
+# Uncomment and set after provisioning — az network public-ip show will give you the IP
+# ansible_host: ""
+
+ansible_ssh_private_key_file: "~/.ssh/jobportal_{{ env }}_key"
+
+# ── Azure VM ─────────────────────────────────────────────────────────
+az_vm_name: "jobportal-{{ env }}-vm"
+az_admin_user: azureuser
+az_vm_size: Standard_B1s
+az_ssh_pub_key_path: "~/.ssh/jobportal_{{ env }}_key.pub"
+
+# ── Azure Networking ─────────────────────────────────────────────────
+az_vnet_name: "jobportal-{{ env }}-vnet"
+az_subnet_name: "jobportal-{{ env }}-subnet"
+az_nsg_name: "jobportal-{{ env }}-nsg"
+az_pip_name: "jobportal-{{ env }}-pip"
+az_nic_name: "jobportal-{{ env }}-nic"
+az_os_disk_gb: 30
+
+# ── App Deployment ───────────────────────────────────────────────────
+docker_image: "amrthedev/jobportal:latest"
+app_dir: "/opt/jobportal"
